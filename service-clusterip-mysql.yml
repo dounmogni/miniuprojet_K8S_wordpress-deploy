@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wp-mysql
+  labels:
+    name: wordpress
+  namespace: wordpress
+spec:
+  type: ClusterIP
+  selector: #definition des pods a selectionné pour rediriger le trafic
+    app: wordpress
+    tier: mysql
+  ports:
+    - protocol: TCP
+      port: 3306 # port de reception du trafic venant de l'appli
+      targetPort: 3306 # port de redirection des flux sur les pods du clurster

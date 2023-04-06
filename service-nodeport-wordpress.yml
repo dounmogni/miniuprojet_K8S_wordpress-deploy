@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress
+  labels:
+    app: wordpress
+  namespace: wordpress
+spec:
+  type: NodePort
+  selector: #definition des pods a selectionné pour rediriger le trafic
+    app: wordpress
+    tier: frontend
+  ports:
+    - protocol: TCP
+      port: 80 # port de recetion du trafic (port de lapplication)
+      targetPort: 80  # port de rediretion du flux recu sur les pods
+      nodePort: 30008 # port exposé a l'exterieur sur l'ip machine(30000-32767)

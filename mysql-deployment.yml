@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wp-mysql
+  labels:
+    app: wordpress
+  namespace: wordpress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:  # association du clursterIp au pods par les labels
+      app: wordpress
+      tier: mysql
+  strategy:
+    type: Recreate
+  template:  #definition d'un template des pods a la creation
+    metadata:
+      labels:
+        app: wordpress
+        tier: mysql
+    spec:
+      containers:
+      - image: mysql:5.7
+        name: mysql
+        env:
+        - name: MYSQL_DATABASE
+          value: wordpress
+        - name: MYSQL_USER
+          value: toto
+        - name: MYSQL_PASSWORD
+          valueFrom: #creation d'un objet secret pour conservation des passwd.
+            secretKeyRef:
+              name: app-wordpress-secret #nom de l'objet
+              key: mysql_password #clé de lobjet dans le fichier
+        - name: MYSQL_RANDOM_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app-wordpress-secret
+              key: mysql_random_root_password
+        ports:
+        - containerPort: 3306 #exposition du port du container
+          name: mysql
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage
+        hostPath:
+          path: /data/mysql
